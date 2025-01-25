@@ -1,0 +1,9 @@
+setup.py
+CornBreadV3.egg-info/._PKG-INFO
+CornBreadV3.egg-info/._SOURCES.txt
+CornBreadV3.egg-info/._dependency_links.txt
+CornBreadV3.egg-info/._top_level.txt
+CornBreadV3.egg-info/PKG-INFO
+CornBreadV3.egg-info/SOURCES.txt
+CornBreadV3.egg-info/dependency_links.txt
+CornBreadV3.egg-info/top_level.txt

@@ -1,0 +1,10 @@
+pyaudio
+numpy
+soundfile
+sounddevice
+webrtcvad
+ollama
+piper-tts
+simpleaudio
+faster-whisper
+noisereduce
