@@ -42,9 +42,11 @@ class WhisperProcessor:
             vad_parameters={"min_silence_duration_ms": 200},  # Shorter silence for quicker filtering
         )
 
-        for segment in segments:
-            # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
-            print("%s" % (segment.text))
+        # for segment in segments:
+        #     # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+        #     print("%s" % (segment.text))
+        transcribed_text = " ".join([segment.text for segment in segments])  # Join all texts with space
+        print(transcribed_text)
 
 class VoiceActivationDetector:
     def __init__(self):

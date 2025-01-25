@@ -7,12 +7,14 @@ import os
 import logging
 import argparse
 import time
-
+import sys
+import speech_to_text as stt
 # LLM
 from ollama import chat
 
 # Text-to-Speech
-from piper.src.python_run.piper import PiperVoice
+sys.path.append('piper/src/python_run')
+from piper import PiperVoice
 
 # Audio Playback
 import simpleaudio as sa
@@ -26,7 +28,7 @@ class PersonalAssistant:
         self, 
         llm_model="gemma2:2b",
         name="CeeBee",
-        piper_model="en_GB-alan-medium.onnx",  # Hard-coded default
+        piper_model="voice_models/en_GB-alan-medium.onnx",  # Hard-coded default
         piper_config=None,
         use_cuda=False,
         length_scale=0.7,
@@ -93,21 +95,17 @@ class PersonalAssistant:
             for chunk in stream:
                 chunk_text = chunk["message"]["content"]
                 text_response.append(chunk_text)
-                print(chunk_text, end="", flush=True)
+                # print(chunk_text, end="", flush=True)
 
-            print()  # newline
+            # print()  # newline
             final_response = "".join(text_response)
-
-            # Replace prefixes to remove the period
             for prefix in ["Mr.", "Dr.", "Ms.", "Mrs.", ",", "*"]:
                 final_response = final_response.replace(prefix, prefix[:-1])
 
             final_response = final_response.replace("...", ".")
-
-            # Remove any non-ASCII characters (including emojis)
-            sanitized_response = sanitize_text(final_response)
-
-            self.speak_text(sanitized_response)
+            sanitized_text = sanitize_text(final_response)
+            print(sanitized_text)
+            self.speak_text(sanitized_text)
 
         except Exception as e:
             error_msg = f"\nApologies, Sir. I encountered an issue: {str(e)}"
@@ -115,7 +113,7 @@ class PersonalAssistant:
             self.speak_text("Apologies, Sir. I encountered an issue.")
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="gemma2:2b", help="Ollama model name")
@@ -135,20 +133,21 @@ def main():
         noise_w=args.noise_w,
     )
 
-    print("welcome back sir. all systems are online")
     ceebee.response("say: welcome back sir. all systems are online. But vary the response slightly to add variety")
-    # ceebee.speak_text("welcome back sir")
-    # time.sleep(0.5)
-    # ceebee.speak_text("all systems are online")
-
-    while True:
-        user_input = input("Input: ")
-        if user_input.lower() in ["shutdown", "quit", "exit"]:
-            print("Goodbye Sir")
-            ceebee.response("Say: Shutting down, Goodbye. But vary the response slightly to add variety")
-            break
-
-        ceebee.response(user_input)
+    speech_listener = stt.SpeechToText()
+    try:
+        while True:
+            user_input = speech_listener.listen()
+            print(user_input)
+            if user_input.lower() in ["shutdown", "quit", "exit", "shut down"]:
+                print("Goodbye Sir")
+                ceebee.response("Say: Shutting down, Goodbye. But vary the response slightly to add variety")
+                break
+            ceebee.response(user_input)
+    except KeyboardInterrupt:
+        ceebee.response("Say: Shutting down, Goodbye. But vary the response slightly to add variety")
+    finally:
+        speech_listener.close()
 
 if __name__ == "__main__":
     main()
